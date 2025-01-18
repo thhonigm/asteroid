@@ -29,13 +29,16 @@ def main():
         keys = pygame.key.get_pressed()
         if keys[pygame.K_q]:
             return
-        screen.fill(color = "black")
+        screen.fill(color = (26, 27, 38))
         for obj in updatable:
             obj.update(dt)
         for ast in asteroids:
             if ast.collides_with(player):
-                print("Game over!")
-                return
+                ast.split()
+                player.hit(dt)
+                if player.destroyed():
+                    print("Game over!")
+                    return
         for ast in asteroids:
             for shot in shots:
                 if ast.collides_with(shot):

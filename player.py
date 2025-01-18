@@ -20,7 +20,12 @@ class Player(circleshape.CircleShape):
         return [a, b, c]
 
     def draw(self, screen):
-        pygame.draw.polygon(screen, "white", self.triangle(), 2)
+        color = "green" if self.shield else "white"
+        lwidth = 2
+        if self.hit_count > 0:
+            color = "red"
+            lwidth = int(self.hit_count / 3) + 1
+        pygame.draw.polygon(screen, color, self.triangle(), lwidth)
 
     def rotate(self, dt):
         self.rotation += PLAYER_TURN_SPEED * dt
@@ -36,12 +41,26 @@ class Player(circleshape.CircleShape):
         shot.velocity = pygame.Vector2(0,1).rotate(self.rotation) * PLAYER_SHOT_SPEED
         self.cooldown = 0.3
 
+    def hit(self, dt):
+        self.hit_count += 100*dt
+
+    def destroyed(self):
+        return self.hit_count > 0 and not self.shield
+
     def update(self, dt):
         if self.cooldown > dt:
             self.cooldown -= dt
         else:
             self.cooldown = 0
+        if self.hit_count > dt:
+            self.hit_count -= dt
+        else:
+            self.hit_count = 0
         keys = pygame.key.get_pressed()
+        if keys[pygame.K_s]:
+            self.shield = True
+        if keys[pygame.K_a]:
+            self.shield = False
         if keys[pygame.K_h]:
             self.rotate(-dt)
         if keys[pygame.K_l]:
